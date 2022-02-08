@@ -6,7 +6,7 @@
 
     <groupId>dk.lockfuglsang.minecraft</groupId>
     <artifactId>bukkit-utils</artifactId>
-    <version>1.25-SNAPSHOT</version>
+    <version>1.25-brokko-SNAPSHOT</version>
 
     <properties>
         <poutils.version>1.2</poutils.version>

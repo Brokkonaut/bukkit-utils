@@ -30,8 +30,8 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
             return itemStack;
         }
         Object nmsItem = execStatic(getCraftItemStackClass(), "asNMSCopy", itemStack);
-        Object nbtTag = execStatic(getNBTTagParser(), "parse", nbtTagString);
-        exec(nmsItem, "setTag", nbtTag);
+        Object nbtTag = execStatic(getNBTTagParser(), "a", nbtTagString);
+        exec(nmsItem, "c", nbtTag);
         Object item = execStatic(getCraftItemStackClass(), "asBukkitCopy", nmsItem);
         if (item instanceof ItemStack) {
             return (ItemStack) item;
@@ -45,10 +45,10 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
             return itemStack;
         }
         Object nmsItem = execStatic(getCraftItemStackClass(), "asNMSCopy", itemStack);
-        Object nbtTag = exec(nmsItem, "getTag");
-        Object nbtTagNew = execStatic(getNBTTagParser(), "parse", nbtTagString);
+        Object nbtTag = exec(nmsItem, "s");
+        Object nbtTagNew = execStatic(getNBTTagParser(), "a", nbtTagString);
         nbtTag = merge(nbtTagNew, nbtTag);
-        exec(nmsItem, "setTag", nbtTag);
+        exec(nmsItem, "c", nbtTag);
         Object item = execStatic(getCraftItemStackClass(), "asBukkitCopy", nmsItem);
         if (item instanceof ItemStack) {
             return (ItemStack) item;
@@ -69,8 +69,8 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
             Map<String, Object> map = (Map<String, Object>) mapField.get(src);
             Class<?> NBTBase = Class.forName(getPackageName(tgt) + ".NBTBase");
             for (String key : map.keySet()) {
-                Object val = exec(src, "get", new Class[]{String.class}, key);
-                exec(tgt, "set", new Class[]{String.class, NBTBase}, key, val);
+                Object val = exec(src, "c", new Class[]{String.class}, key);
+                exec(tgt, "a", new Class[]{String.class, NBTBase}, key, val);
             }
             return tgt;
         } catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
