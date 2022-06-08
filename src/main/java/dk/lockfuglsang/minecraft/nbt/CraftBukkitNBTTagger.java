@@ -1,12 +1,15 @@
 package dk.lockfuglsang.minecraft.nbt;
 
-import org.bukkit.inventory.ItemStack;
+import static dk.lockfuglsang.minecraft.reflection.ReflectionUtil.exec;
+import static dk.lockfuglsang.minecraft.reflection.ReflectionUtil.execStatic;
+import static dk.lockfuglsang.minecraft.reflection.ReflectionUtil.getCraftBukkitVersion;
+import static dk.lockfuglsang.minecraft.reflection.ReflectionUtil.getPackageName;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static dk.lockfuglsang.minecraft.reflection.ReflectionUtil.*;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * An NBTItemStackTagger using reflection for CraftBukkit based servers.
@@ -69,12 +72,12 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
             Map<String, Object> map = (Map<String, Object>) mapField.get(src);
             Class<?> NBTBase = Class.forName(getPackageName(tgt) + ".NBTBase");
             for (String key : map.keySet()) {
-                Object val = exec(src, "c", new Class[]{String.class}, key);
-                exec(tgt, "a", new Class[]{String.class, NBTBase}, key, val);
+                Object val = exec(src, "c", new Class[] { String.class }, key);
+                exec(tgt, "a", new Class[] { String.class, NBTBase }, key, val);
             }
             return tgt;
         } catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
-            log.info("Unable to transfer NBTTag from " + src + " to " + tgt + ": " + e);
+            log.log(Level.WARNING, "Unable to transfer NBTTag from " + src + " to " + tgt + ": ", e);
         }
         return tgt;
     }
@@ -83,7 +86,7 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
         try {
             return Class.forName("net.minecraft.nbt.MojangsonParser");
         } catch (ClassNotFoundException e) {
-            log.info("Unable to instantiate MojangsonParser: " + e);
+            log.log(Level.WARNING, "Unable to instantiate MojangsonParser: ", e);
         }
         return null;
     }
@@ -93,7 +96,7 @@ public class CraftBukkitNBTTagger implements NBTItemStackTagger {
         try {
             return Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
         } catch (Exception e) {
-            log.info("Unable to find CraftItemStack: " + e);
+            log.log(Level.WARNING, "Unable to find CraftItemStack: ", e);
         }
         return null;
     }

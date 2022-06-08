@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
@@ -54,7 +55,8 @@ public enum ItemStackUtil {
                 return type;
             }
         }
-        return Material.BARRIER;
+        Bukkit.getLogger().log(Level.WARNING, "Unknown material: " + id, new Exception());
+        return Material.COBBLESTONE;
     }
 
     public static List<ItemStack> createItemList(List<String> items) {
@@ -126,7 +128,7 @@ public enum ItemStackUtil {
         }
         if (type == null) {
             Bukkit.getLogger().warning("Invalid material " + displayItem + " supplied!");
-            type = Material.BARRIER;
+            type = Material.COBBLESTONE;
         }
         ItemStack itemStack = (metaStr == null || metaStr.isBlank()) ? new ItemStack(type, 1) : Bukkit.getItemFactory().createItemStack(type.getKey().toString() + metaStr);
         ItemMeta meta = itemStack.getItemMeta();
