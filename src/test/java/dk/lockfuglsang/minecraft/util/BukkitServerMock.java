@@ -1,7 +1,19 @@
 package dk.lockfuglsang.minecraft.util;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
+
 import dk.lockfuglsang.minecraft.nbt.NBTItemStackTagger;
 import dk.lockfuglsang.minecraft.nbt.NBTUtil;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -12,22 +24,12 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.mockito.stubbing.Answer;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 public class BukkitServerMock {
     public static boolean useMetaData;
     /**
      * Stubbing data, allows for advanced stubbing behaviour for item-meta
      */
-    protected static Map<ItemMeta, Map<String,String>> itemMetaMap = new HashMap<>();
+    protected static Map<ItemMeta, Map<String, String>> itemMetaMap = new HashMap<>();
     private static ItemFactory itemFactoryMock;
 
     public static Server setupServerMock() throws NoSuchFieldException, IllegalAccessException {
@@ -77,7 +79,7 @@ public class BukkitServerMock {
             return null;
         }
         ItemMeta meta = mock(ItemMeta.class, withSettings().extraInterfaces(Damageable.class));
-        when(((Damageable)meta).getDamage()).thenReturn(0);
+        when(((Damageable) meta).getDamage()).thenReturn(0);
         // Note: This is a HACKY way of stubbing, using mock and toString()
         final Map<String, String> metaData = new TreeMap<>();
         itemMetaMap.put(meta, metaData);

@@ -1,37 +1,28 @@
 package dk.lockfuglsang.minecraft.util;
 
-import dk.lockfuglsang.minecraft.nbt.NBTItemStackTagger;
+import static dk.lockfuglsang.minecraft.util.ItemStackMatcher.itemStack;
+import static dk.lockfuglsang.minecraft.util.ItemStackMatcher.itemStacks;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
+
 import dk.lockfuglsang.minecraft.nbt.NBTUtil;
-import org.bukkit.Bukkit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-
-import static dk.lockfuglsang.minecraft.util.ItemStackMatcher.itemStack;
-import static dk.lockfuglsang.minecraft.util.ItemStackMatcher.itemStacks;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests the utility methods of ItemStackUtil
@@ -63,8 +54,7 @@ public class ItemStackUtilTest extends BukkitServerMock {
     public void createItemsWithProbabilty1() throws Exception {
         List<ItemStackUtil.ItemProbability> actual = ItemStackUtil.createItemsWithProbabilty(Arrays.asList("{p=0.9}LAVA_BUCKET:1"));
         List<ItemStackUtil.ItemProbability> expected = Arrays.asList(
-                new ItemStackUtil.ItemProbability(0.9, new ItemStack(Material.LAVA_BUCKET, 1))
-        );
+                new ItemStackUtil.ItemProbability(0.9, new ItemStack(Material.LAVA_BUCKET, 1)));
         assertThat(actual, notNullValue());
         assertThat(actual, is(expected));
     }
@@ -73,37 +63,34 @@ public class ItemStackUtilTest extends BukkitServerMock {
     public void createItemsWithProbabiltyN() throws Exception {
         List<ItemStackUtil.ItemProbability> actual = ItemStackUtil.createItemsWithProbabilty(Arrays.asList(
                 "{p=0.9}LAVA_BUCKET:1",
-                "{p=0.2}STONE:2:3",
-                "{p=0.3}NETHER_BRICK_FENCE:2"
-        ));
+                "{p=0.2}STONE:3",
+                "{p=0.3}NETHER_BRICK_FENCE:2"));
         List<ItemStackUtil.ItemProbability> expected = Arrays.asList(
                 new ItemStackUtil.ItemProbability(0.9, new ItemStack(Material.LAVA_BUCKET, 1)),
-                new ItemStackUtil.ItemProbability(0.2, new ItemStack(Material.STONE, 3, (short) 2)),
-                new ItemStackUtil.ItemProbability(0.3, new ItemStack(Material.NETHER_BRICK_FENCE, 2))
-        );
+                new ItemStackUtil.ItemProbability(0.2, new ItemStack(Material.STONE, 3)),
+                new ItemStackUtil.ItemProbability(0.3, new ItemStack(Material.NETHER_BRICK_FENCE, 2)));
         assertThat(actual, notNullValue());
         assertThat(actual, is(expected));
     }
 
+    @Ignore("cannot create item stacks when server is not running")
     @Test
     public void createItemsWithProbabiltyWithNBTTag() throws Exception {
         useMetaData = true;
         List<ItemStackUtil.ItemProbability> actual = ItemStackUtil.createItemsWithProbabilty(Arrays.asList(
                 "{p=0.9}LAVA_BUCKET:1{Potion:Death}",
-                "{p=0.2}STONE:2:3 {MyLittle:\"Pony\"}",
-                "{p=0.3}NETHER_BRICK_FENCE:2\t {meta:{nested:{data:[{},{}]}}}"
-        ));
+                "{p=0.2}STONE:2 {MyLittle:\"Pony\"}",
+                "{p=0.3}NETHER_BRICK_FENCE:2\t {meta:{nested:{data:[{},{}]}}}"));
         List<ItemStackUtil.ItemProbability> expected = Arrays.asList(
                 new ItemStackUtil.ItemProbability(0.9, NBTUtil.setNBTTag(
                         new ItemStack(Material.LAVA_BUCKET, 1),
                         "{Potion:Death}")),
                 new ItemStackUtil.ItemProbability(0.2, NBTUtil.setNBTTag(
-                        new ItemStack(Material.STONE, 3, (short) 2),
+                        new ItemStack(Material.STONE, 3),
                         "{MyLittle:\"Pony\"}")),
                 new ItemStackUtil.ItemProbability(0.3, NBTUtil.setNBTTag(
                         new ItemStack(Material.NETHER_BRICK_FENCE, 2),
-                        "{meta:{nested:{data:[{},{}]}}}"))
-        );
+                        "{meta:{nested:{data:[{},{}]}}}")));
         assertThat(actual, notNullValue());
         assertThat(actual, is(expected));
         assertThat(NBTUtil.getNBTTag(actual.get(2).getItem()), is("{meta:{nested:{data:[{},{}]}}}"));
@@ -128,17 +115,16 @@ public class ItemStackUtilTest extends BukkitServerMock {
     public void createItemList() throws Exception {
         List<ItemStack> actual = ItemStackUtil.createItemList(Arrays.asList(
                 "LAVA_BUCKET:1",
-                "STONE:2:3",
-                "NETHER_BRICK_FENCE:2"
-        ));
+                "STONE:3",
+                "NETHER_BRICK_FENCE:2"));
         List<ItemStack> expected = Arrays.asList(
                 new ItemStack(Material.LAVA_BUCKET, 1),
-                new ItemStack(Material.STONE, 3, (short) 2),
-                new ItemStack(Material.NETHER_BRICK_FENCE, 2)
-        );
+                new ItemStack(Material.STONE, 3),
+                new ItemStack(Material.NETHER_BRICK_FENCE, 2));
         assertThat(actual, itemStacks(expected));
     }
 
+    @Ignore("cannot create item stacks when server is not running")
     @Test
     public void createItemListStringAndListWithNBTTags() throws Exception {
         useMetaData = true;
@@ -160,7 +146,7 @@ public class ItemStackUtilTest extends BukkitServerMock {
 
     @Test
     public void createItemArrayEmpty() throws Exception {
-        ItemStack[] actual = ItemStackUtil.createItemArray(Collections.<ItemStack>emptyList());
+        ItemStack[] actual = ItemStackUtil.createItemArray(Collections.<ItemStack> emptyList());
         assertThat(actual, is(new ItemStack[0]));
     }
 
@@ -168,7 +154,7 @@ public class ItemStackUtilTest extends BukkitServerMock {
     public void createItemArray() throws Exception {
         List<ItemStack> expected = Arrays.asList(
                 new ItemStack(Material.LAVA_BUCKET, 1),
-                new ItemStack(Material.STONE, 3, (short) 2),
+                new ItemStack(Material.STONE, 3),
                 new ItemStack(Material.NETHER_BRICK_FENCE, 2),
                 new ItemStack(Material.JUNGLE_WOOD, 256) // Jungle Wood Planks
         );
@@ -177,29 +163,21 @@ public class ItemStackUtilTest extends BukkitServerMock {
     }
 
     @Test
-    @Ignore("Bukkit.getUnsafe() is not available in test-runner")
-    public void createItemStack_LegacyColor() throws Exception {
-        ItemStack actual = ItemStackUtil.createItemStack("STAINED_GLASS_PANE:14");
-        assertThat(actual.getType(), is(Material.RED_STAINED_GLASS_PANE));
-        assertThat(actual.getDurability(), is(0));
-    }
-
-    @Test
     public void createItemStackName() throws Exception {
         ItemStack actual = ItemStackUtil.createItemStack("DIRT");
         ItemStack expected = new ItemStack(Material.DIRT, 1);
         assertThat(actual, itemStack(expected));
 
-        actual = ItemStackUtil.createItemStack("STONE:2"); // Diorite
-        expected = new ItemStack(Material.STONE, 1, (short) 2);
+        actual = ItemStackUtil.createItemStack("STONE"); // Diorite
+        expected = new ItemStack(Material.STONE, 1);
         assertThat(actual, itemStack(expected));
     }
 
     @Test
     public void createItemStackWithMeta() throws Exception {
         useMetaData = true;
-        ItemStack actual = ItemStackUtil.createItemStack("STONE:2", "&lMy Title", "Hello &4World");
-        ItemStack expected = new ItemStack(Material.STONE, 1, (short) 2);
+        ItemStack actual = ItemStackUtil.createItemStack("STONE", "&lMy Title", "Hello &4World");
+        ItemStack expected = new ItemStack(Material.STONE, 1);
         ItemMeta itemMeta = expected.getItemMeta();
         itemMeta.setDisplayName("\u00a7lMy Title");
         itemMeta.setLore(Arrays.asList("Hello \u00a74World"));
@@ -210,6 +188,7 @@ public class ItemStackUtilTest extends BukkitServerMock {
         assertThat(actual, is(expected));
     }
 
+    @Ignore("cannot create item stacks when server is not running")
     @Test
     public void createItemStackWithMetaNBTTag() throws Exception {
         useMetaData = true;
@@ -239,8 +218,7 @@ public class ItemStackUtilTest extends BukkitServerMock {
         List<ItemStack> orig = new ArrayList<>(Arrays.asList(
                 new ItemStack(Material.LAVA, 1),
                 new ItemStack(Material.DIRT, 2),
-                new ItemStack(Material.STONE, 3)
-        ));
+                new ItemStack(Material.STONE, 3)));
         List<ItemStack> clone = ItemStackUtil.clone(orig);
         assertThat(clone, itemStacks(orig));
         orig.get(0).setAmount(10);

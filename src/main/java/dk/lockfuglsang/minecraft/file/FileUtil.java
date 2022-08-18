@@ -1,10 +1,6 @@
 package dk.lockfuglsang.minecraft.file;
 
 import dk.lockfuglsang.minecraft.yml.YmlConfiguration;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -26,11 +22,15 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * Common file-utilities.
  */
-public enum FileUtil {;
+public enum FileUtil {
+    ;
     private static final Logger log = Logger.getLogger(FileUtil.class.getName());
     private static final Collection<String> allwaysOverwrite = new ArrayList<>();
     private static final Collection<String> neverOverwrite = new ArrayList<>();
@@ -62,7 +62,7 @@ public enum FileUtil {;
 
     public static void readConfig(FileConfiguration config, File file) {
         if (file == null) {
-            log.log(Level.INFO, "No "  + file + " found, it will be created");
+            log.log(Level.INFO, "No " + file + " found, it will be created");
             return;
         }
         File configFile = file;
@@ -71,7 +71,7 @@ public enum FileUtil {;
             configFile = localeFile;
         }
         if (!configFile.exists()) {
-            log.log(Level.INFO, "No "  + configFile + " found, it will be created");
+            log.log(Level.INFO, "No " + configFile + " found, it will be created");
             return;
         }
         try (Reader rdr = new InputStreamReader(new FileInputStream(configFile), "UTF-8")) {
@@ -116,7 +116,7 @@ public enum FileUtil {;
 
     public static String getBasename(String file) {
         String[] lastPart = file.split("(/|\\\\)");
-        file = lastPart[lastPart.length-1];
+        file = lastPart[lastPart.length - 1];
         if (file != null && file.lastIndexOf('.') != -1) {
             return file.substring(0, file.lastIndexOf('.'));
         }
@@ -125,7 +125,7 @@ public enum FileUtil {;
 
     public static String getExtension(String fileName) {
         if (fileName != null && !fileName.isEmpty()) {
-            return fileName.substring(getBasename(fileName).length()+1);
+            return fileName.substring(getBasename(fileName).length() + 1);
         }
         return "";
     }
@@ -137,6 +137,7 @@ public enum FileUtil {;
     /**
      * System-encoding agnostic config-reader
      * Reads and returns the configuration found in:
+     *
      * <pre>
      *   a) the datafolder
      *
@@ -231,18 +232,20 @@ public enum FileUtil {;
 
     /**
      * Merges the important keys from src to destination.
-     * @param src The source (containing the new values).
-     * @param dest The destination (containing old-values).
+     *
+     * @param src
+     *            The source (containing the new values).
+     * @param dest
+     *            The destination (containing old-values).
      */
     private static YmlConfiguration mergeConfig(YmlConfiguration src, YmlConfiguration dest) {
         int existing = dest.getInt("version");
         int version = src.getInt("version", existing);
         dest.setDefaults(src);
         dest.options().copyDefaults(true);
-        dest.addComments(src.getComments());
         dest.set("version", version);
-        dest.options().copyHeader(false);
-        src.options().copyHeader(false);
+        dest.options().parseComments(true);
+        src.options().parseComments(true);
         removeExcludes(dest);
         moveNodes(src, dest);
         replaceDefaults(src, dest);

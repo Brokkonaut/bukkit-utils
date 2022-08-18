@@ -1,21 +1,23 @@
 package dk.lockfuglsang.minecraft.command;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.stubbing.Answer;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.hamcrest.Matchers;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.stubbing.Answer;
 
 public class CompositeCommandTest {
     private static UUID ownerUUID = UUID.randomUUID();
@@ -57,7 +59,7 @@ public class CompositeCommandTest {
         when(player.hasPermission(anyString())).thenReturn(false);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
         verify(player).sendMessage("§eYou do not have access (§4plugin§e)");
     }
@@ -66,11 +68,10 @@ public class CompositeCommandTest {
     public void PermOnBase() {
         // Arrange
         Player player = mock(Player.class);
-        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock ->
-                invocationOnMock.getArguments()[0] == "plugin");
+        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock -> invocationOnMock.getArguments()[0] == "plugin");
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
         verify(player).sendMessage("§eYou do not have access (§4admin.admin.superadmin§e)");
     }
@@ -80,16 +81,14 @@ public class CompositeCommandTest {
         // Arrange
         Player player = mock(Player.class);
         final List<String> messages = recordMessages(player);
-        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock ->
-                invocationOnMock.getArguments()[0] == "plugin"
-                || invocationOnMock.getArguments()[0] == "admin.admin.superadmin"
-        );
+        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock -> invocationOnMock.getArguments()[0] == "plugin"
+                || invocationOnMock.getArguments()[0] == "admin.admin.superadmin");
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
         verify(player).sendMessage("executed admin");
-        assertThat(messages, Matchers.contains(new String[]{"executed admin", "§eYou do not have access (§4perm.sub§e)"}));
+        assertThat(messages, Matchers.contains(new String[] { "executed admin", "§eYou do not have access (§4perm.sub§e)" }));
     }
 
     @Test
@@ -100,10 +99,10 @@ public class CompositeCommandTest {
         final List<String> messages = recordMessages(player);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
         verify(player).sendMessage("executed admin");
-        assertThat(messages, Matchers.contains(new String[]{"executed admin", "from sub"}));
+        assertThat(messages, Matchers.contains(new String[] { "executed admin", "from sub" }));
     }
 
     @Test
@@ -114,9 +113,9 @@ public class CompositeCommandTest {
         final List<String> messages = recordMessages(player);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
-        assertThat(messages, Matchers.contains(new String[]{"executed admin", "from sub"}));
+        assertThat(messages, Matchers.contains(new String[] { "executed admin", "from sub" }));
     }
 
     @Test
@@ -127,9 +126,9 @@ public class CompositeCommandTest {
         final List<String> messages = recordMessages(player);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin",  "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
-        assertThat(messages, Matchers.contains(new String[]{"§eYou do not have access (§4plugin§e)"}));
+        assertThat(messages, Matchers.contains(new String[] { "§eYou do not have access (§4plugin§e)" }));
     }
 
     @Test
@@ -137,15 +136,13 @@ public class CompositeCommandTest {
         // Arrange
         Player player = mock(Player.class);
         when(player.getUniqueId()).thenReturn(adminUUID);
-        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock ->
-                invocationOnMock.getArguments()[0] == "plugin"
-        );
+        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock -> invocationOnMock.getArguments()[0] == "plugin");
         final List<String> messages = recordMessages(player);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin", "sub"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub" });
 
-        assertThat(messages, Matchers.contains(new String[]{"executed admin", "from sub"}));
+        assertThat(messages, Matchers.contains(new String[] { "executed admin", "from sub" }));
     }
 
     @Test
@@ -153,16 +150,14 @@ public class CompositeCommandTest {
         // Arrange
         Player player = mock(Player.class);
         when(player.getUniqueId()).thenReturn(modUUID);
-        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock ->
-                invocationOnMock.getArguments()[0] == "plugin"
-                        || invocationOnMock.getArguments()[0] == "admin.admin.superadmin"
-        );
+        when(player.hasPermission(anyString())).thenAnswer((Answer<Boolean>) invocationOnMock -> invocationOnMock.getArguments()[0] == "plugin"
+                || invocationOnMock.getArguments()[0] == "admin.admin.superadmin");
         final List<String> messages = recordMessages(player);
 
         // Act
-        executor.onCommand(player, null, "alias", new String[]{"admin", "sub2"});
+        executor.onCommand(player, null, "alias", new String[] { "admin", "sub2" });
 
-        assertThat(messages, Matchers.contains(new String[]{"executed admin", "from sub2"}));
+        assertThat(messages, Matchers.contains(new String[] { "executed admin", "from sub2" }));
     }
 
     private List<String> recordMessages(Player player) {

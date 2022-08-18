@@ -1,12 +1,15 @@
 package dk.lockfuglsang.minecraft.util;
 
-import org.junit.Test;
+import static dk.lockfuglsang.minecraft.util.FormatUtil.camelcase;
+import static dk.lockfuglsang.minecraft.util.FormatUtil.escape;
+import static dk.lockfuglsang.minecraft.util.FormatUtil.normalize;
+import static dk.lockfuglsang.minecraft.util.FormatUtil.wordWrap;
+import static dk.lockfuglsang.minecraft.util.FormatUtil.wordWrapStrict;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
-
-import static dk.lockfuglsang.minecraft.util.FormatUtil.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 public class FormatUtilTest {
 
@@ -21,13 +24,12 @@ public class FormatUtilTest {
     public void testWordWrap() throws Exception {
         assertThat(wordWrap("asdadfasd asfasdfasd", 9, 12),
                 is(Arrays.asList(
-                "asdadfasd", "asfasdfasd")));
+                        "asdadfasd", "asfasdfasd")));
         assertThat(wordWrap("§1Hello §2World §3How are you", 4, 10),
                 is(Arrays.asList("§1Hello", "§2World §3How", "§3are you")));
 
         assertThat(wordWrap("§1§2§3§4§5Hello §aWorld §1§2§3§4what happens", 10, 10), is(Arrays.asList(
-            "§1§2§3§4§5Hello §aWorld", "§1§2§3§4what happens"
-        )));
+                "§1§2§3§4§5Hello §aWorld", "§1§2§3§4what happens")));
 
         assertThat(wordWrap("this is a short story of a long sentence withaverylongword in the end", 14, 14),
                 is(Arrays.asList(

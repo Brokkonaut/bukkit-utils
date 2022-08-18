@@ -1,12 +1,11 @@
 package dk.lockfuglsang.minecraft.yml;
 
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * A YamlConfiguration that supports comments
@@ -21,14 +20,15 @@ public class YmlConfiguration extends YamlConfiguration {
         return comment != null ? comment.replaceAll("^# ?", "").replaceAll("\n# ?", "") : null;
     }
 
-    public Map<String,String> getComments() {
+    public Map<String, String> getComments() {
         return commentParser.getCommentMap();
     }
 
     public void addComment(String path, String comment) {
         commentParser.addComment(path, comment);
     }
-    public void addComments(Map<String,String> comments) {
+
+    public void addComments(Map<String, String> comments) {
         commentParser.addComments(comments);
     }
 
