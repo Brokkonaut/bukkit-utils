@@ -23,8 +23,8 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public enum ItemStackUtil {
     ;
-    private static final Pattern ITEM_AMOUNT_PATTERN = Pattern.compile("(\\{p=(?<prob>0\\.[0-9]+)\\})?(?<id>[0-9A-Z_]+):(?<amount>[0-9]+)\\s*(?<meta>\\{.*\\})?");
-    private static final Pattern ITEM_PATTERN = Pattern.compile("(?<id>[0-9A-Z_]+)\\s*(?<meta>\\{.*\\})?");
+    private static final Pattern ITEM_AMOUNT_PATTERN = Pattern.compile("(\\{p=(?<prob>0\\.[0-9]+)\\})?(?<id>[0-9A-Z_]+):(?<amount>[0-9]+)\\s*(?<meta>\\{.*\\})?", Pattern.DOTALL);
+    private static final Pattern ITEM_PATTERN = Pattern.compile("(?<id>[0-9A-Z_]+)\\s*(?<meta>\\{.*\\})?", Pattern.DOTALL);
 
     public static List<ItemProbability> createItemsWithProbabilty(List<String> items) {
         List<ItemProbability> itemProbs = new ArrayList<>();
