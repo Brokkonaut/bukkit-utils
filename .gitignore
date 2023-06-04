@@ -2,3 +2,6 @@
 **/*.iml
 /target
 deploy_rsa
+/.classpath
+/.project
+/.settings
