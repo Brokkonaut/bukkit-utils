@@ -216,6 +216,10 @@ public enum ItemStackUtil {
         return null;
     }
 
+    public static String getMaterialName(Material block) {
+        return block == null ? null : tr(FormatUtil.camelcase(block.name()).replaceAll("([A-Z])", " $1").trim());
+    }
+
     /**
      * Builder for ItemStack
      */
