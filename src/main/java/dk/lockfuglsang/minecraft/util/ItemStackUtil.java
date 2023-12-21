@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -23,8 +26,9 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public enum ItemStackUtil {
     ;
-    private static final Pattern ITEM_AMOUNT_PATTERN = Pattern.compile("(\\{p=(?<prob>0\\.[0-9]+)\\})?(?<id>[0-9A-Z_]+):(?<amount>[0-9]+)\\s*(?<meta>\\{.*\\})?", Pattern.DOTALL);
+    private static final Pattern ITEM_AMOUNT_PATTERN = Pattern.compile("(\\{p=(?<prob>0\\.[0-9]+)\\})?(?<id>\\#?[0-9A-Za-z_]+):(?<amount>[0-9]+)\\s*(?<meta>\\{.*\\})?", Pattern.DOTALL);
     private static final Pattern ITEM_PATTERN = Pattern.compile("(?<id>[0-9A-Z_]+)\\s*(?<meta>\\{.*\\})?", Pattern.DOTALL);
+    private static final Random RANDOM = new Random();
 
     public static List<ItemProbability> createItemsWithProbabilty(List<String> items) {
         List<ItemProbability> itemProbs = new ArrayList<>();
@@ -32,21 +36,32 @@ public enum ItemStackUtil {
             Matcher m = ITEM_AMOUNT_PATTERN.matcher(reward);
             if (m.matches()) {
                 double p = m.group("prob") != null ? Double.parseDouble(m.group("prob")) : 1;
-                Material type = getItemType(m);
+                String id = m.group("id");
+                Material type;
+                Tag<Material> tag = null;
+                if (id.startsWith("#")) {
+                    tag = Bukkit.getTag(Tag.REGISTRY_ITEMS, NamespacedKey.minecraft(id.substring(1).toLowerCase()), Material.class);
+                    if (tag == null) {
+                        throw new IllegalArgumentException("Unknown item tag: '" + tag + "' in '" + items + "'");
+                    }
+                    type = Material.COBBLESTONE;
+                } else {
+                    type = getItemType(id.toUpperCase());
+                }
                 int amount = Integer.parseInt(m.group("amount"), 10);
                 String metaStr = m.group("meta");
                 ItemStack itemStack = (metaStr == null || metaStr.isBlank()) ? new ItemStack(type, amount) : Bukkit.getItemFactory().createItemStack(type.getKey().toString() + metaStr);
                 itemStack.setAmount(amount);
-                itemProbs.add(new ItemProbability(p, itemStack));
+                itemProbs.add(new ItemProbability(p, itemStack, tag));
             } else {
                 throw new IllegalArgumentException("Unknown item: '" + reward + "' in '" + items + "'");
             }
         }
         return itemProbs;
+
     }
 
-    private static Material getItemType(Matcher m) {
-        String id = m.group("id");
+    private static Material getItemType(String id) {
         if (id != null && id.matches("[0-9]*")) {
             throw new IllegalArgumentException("Bukkit 1.13+ doesn't support Item-IDs, please use Material names instead");
         } else if (id != null) {
@@ -75,7 +90,7 @@ public enum ItemStackUtil {
         }
         Matcher m = ITEM_AMOUNT_PATTERN.matcher(reward);
         if (m.matches()) {
-            Material type = getItemType(m);
+            Material type = getItemType(m.group("id"));
             int amount = Integer.parseInt(m.group("amount"), 10);
             String metaStr = m.group("meta");
             ItemStack itemStack = (metaStr == null || metaStr.isBlank()) ? new ItemStack(type, amount) : Bukkit.getItemFactory().createItemStack(type.getKey().toString() + metaStr);
@@ -122,7 +137,7 @@ public enum ItemStackUtil {
         if (displayItem != null) {
             Matcher matcher = ITEM_PATTERN.matcher(displayItem);
             if (matcher.matches()) {
-                type = getItemType(matcher);
+                type = getItemType(matcher.group("id"));
                 metaStr = matcher.group("meta");
             }
         }
@@ -314,10 +329,16 @@ public enum ItemStackUtil {
     public static class ItemProbability {
         private final double probability;
         private final ItemStack item;
+        private final Material[] randomMaterial;
 
         public ItemProbability(double probability, ItemStack item) {
+            this(probability, item, null);
+        }
+
+        public ItemProbability(double probability, ItemStack item, Tag<Material> itemTag) {
             this.probability = probability;
             this.item = item;
+            this.randomMaterial = itemTag == null ? null : itemTag.getValues().toArray(new Material[0]);
         }
 
         public double getProbability() {
@@ -325,6 +346,11 @@ public enum ItemStackUtil {
         }
 
         public ItemStack getItem() {
+            if (randomMaterial != null) {
+                ItemStack randomItem = item.clone();
+                randomItem.setType(randomMaterial[RANDOM.nextInt(randomMaterial.length)]);
+                return randomItem;
+            }
             return item;
         }
 
