@@ -4,7 +4,6 @@ import static dk.lockfuglsang.minecraft.po.I18nUtil.tr;
 
 import dk.lockfuglsang.minecraft.reflection.ReflectionUtil;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -381,50 +379,5 @@ public enum ItemStackUtil {
         public int hashCode() {
             return Objects.hash(probability, item);
         }
-    }
-
-    public static boolean removeItems(Inventory inventory, Collection<ItemStackAndAmount> items) {
-        ItemStack[] contents = deepCopy(inventory.getStorageContents());
-        for (ItemStackAndAmount item : items) {
-            if (item != null && item.stack() != null && !item.stack().getType().isAir()) {
-                int remaining = item.amount();
-                int firstSimilar = -1;
-                while (remaining > 0) {
-                    firstSimilar = getFirstSimilar(item.stack(), contents, firstSimilar + 1);
-                    if (firstSimilar < 0) {
-                        return false;
-                    }
-                    ItemStack content = contents[firstSimilar];
-                    int here = content.getAmount();
-                    if (here > remaining) {
-                        content.setAmount(here - remaining);
-                        remaining = 0;
-                    } else {
-                        contents[firstSimilar] = null;
-                        remaining -= here;
-                    }
-                }
-            }
-        }
-        inventory.setStorageContents(contents);
-        return true;
-    }
-
-    private static int getFirstSimilar(ItemStack item, ItemStack[] contents, int start) {
-        for (int i = start; i < contents.length; i++) {
-            ItemStack content = contents[i];
-            if (content != null && content.isSimilar(item)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static ItemStack[] deepCopy(ItemStack[] of) {
-        ItemStack[] result = new ItemStack[of.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = of[i] == null ? null : of[i].clone();
-        }
-        return result;
     }
 }
