@@ -10,7 +10,7 @@
 
     <properties>
         <poutils.version>1.2</poutils.version>
-        <spigotapi.version>1.21.3-R0.1-SNAPSHOT</spigotapi.version>
+        <spigotapi.version>1.21.10-R0.1-SNAPSHOT</spigotapi.version>
         <vaultapi.version>1.7</vaultapi.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,8 +32,8 @@
 
     <repositories>
         <repository>
-            <id>spigotmc.org</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/public</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository> <!-- uSkyBlock dependencies that don't have a (stable) repository -->
             <id>uskyblock-dependencies</id>
@@ -112,8 +112,8 @@
             <version>${poutils.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
             <version>${spigotapi.version}</version>
             <optional>true</optional>
             <scope>compile</scope>
