@@ -1,14 +1,13 @@
 package dk.lockfuglsang.minecraft.animation;
 
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.entity.Player;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
+import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 
 /**
  * Common handler across servers for sending particles and other packages to a player.
@@ -29,17 +28,9 @@ public enum PlayerHandler {;
         return false;
     }
 
-    public static boolean sendBlockChange(Player player, Location location, Material material, byte data) {
-        try {
-            Method method = getMethod(player, "sendBlockChange", new Class<?>[]{Location.class, Material.class, Byte.TYPE});
-            if (method != null) {
-                method.invoke(player, location, material, data);
-                return true;
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            log.finest("Unable to sendBlockChange to player " + player + ": " + e);
-        }
-        return false;
+    public static boolean sendBlockChange(Player player, Location location, BlockData material) {
+        player.sendBlockChange(location, material);
+        return true;
     }
 
     public static boolean playEffect(Player player, Location loc, Effect effect, int data) {

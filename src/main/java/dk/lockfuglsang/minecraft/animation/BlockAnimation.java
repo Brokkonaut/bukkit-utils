@@ -1,10 +1,10 @@
 package dk.lockfuglsang.minecraft.animation;
 
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 /**
  * Sends (bogus) block-info to the player
@@ -12,15 +12,18 @@ import java.util.List;
 public class BlockAnimation implements Animation {
     private final Player player;
     private final List<Location> points;
-    private final Material material;
-    private final byte data;
+    private final BlockData material;
     private volatile boolean shown;
 
+    @Deprecated
     public BlockAnimation(Player player, List<Location> points, Material material, byte data) {
+        this(player, points, material.createBlockData());
+    }
+
+    public BlockAnimation(Player player, List<Location> points, BlockData material) {
         this.player = player;
         this.points = points;
         this.material = material;
-        this.data = data;
         shown = false;
     }
 
@@ -33,7 +36,7 @@ public class BlockAnimation implements Animation {
             return false;
         }
         for (Location loc : points) {
-            if (!PlayerHandler.sendBlockChange(player, loc, material, data)) {
+            if (!PlayerHandler.sendBlockChange(player, loc, material)) {
                 return false;
             }
         }
@@ -46,7 +49,7 @@ public class BlockAnimation implements Animation {
         try {
             if (shown) {
                 for (Location loc : points) {
-                    if (!PlayerHandler.sendBlockChange(player, loc, loc.getBlock().getType(), loc.getBlock().getData())) {
+                    if (!PlayerHandler.sendBlockChange(player, loc, loc.getBlock().getBlockData())) {
                         return false;
                     }
                 }
